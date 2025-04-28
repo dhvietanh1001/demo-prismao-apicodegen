@@ -1,0 +1,439 @@
+
+openapi: 3.0.0
+info:
+  title: API for Prisma Models
+  version: 1.0.0
+  description: API generated to match Prisma schema models
+paths:
+  /users:
+    get:
+      summary: Get all users
+      responses:
+        '200':
+          description: Successfully retrieved users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get a user by ID
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    put:
+      summary: Update a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+    delete:
+      summary: Delete a user
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+  
+  /roles:
+    get:
+      summary: Get all roles
+      responses:
+        '200':
+          description: Successfully retrieved roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+    post:
+      summary: Create a new role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleCreate'
+      responses:
+        '201':
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+  
+  /roles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get a role by ID
+      responses:
+        '200':
+          description: Role found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          description: Role not found
+    put:
+      summary: Update a role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUpdate'
+      responses:
+        '200':
+          description: Role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '404':
+          description: Role not found
+    delete:
+      summary: Delete a role
+      responses:
+        '204':
+          description: Role deleted successfully
+        '404':
+          description: Role not found
+  
+  /userroles:
+    get:
+      summary: Get all user roles
+      responses:
+        '200':
+          description: Successfully retrieved user roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRole'
+    post:
+      summary: Assign a role to a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleCreate'
+      responses:
+        '201':
+          description: Role assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRole'
+  
+  /userroles/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    delete:
+      summary: Remove a role assignment
+      responses:
+        '204':
+          description: Role assignment removed successfully
+        '404':
+          description: Role assignment not found
+  
+  /settings:
+    get:
+      summary: Get all settings
+      responses:
+        '200':
+          description: Successfully retrieved settings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Setting'
+  
+  /settings/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get settings for a user
+      responses:
+        '200':
+          description: Settings found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        '404':
+          description: Settings not found
+    put:
+      summary: Update user settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingUpdate'
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        '404':
+          description: Settings not found
+    post:
+      summary: Create user settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingCreate'
+      responses:
+        '201':
+          description: Settings created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password_hash:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        sso_userid:
+          type: integer
+          nullable: true
+        userroles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRole'
+        settings:
+          $ref: '#/components/schemas/Setting'
+          nullable: true
+    
+    UserCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        sso_userid:
+          type: integer
+          nullable: true
+      required:
+        - name
+        - email
+        - password
+    
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        sso_userid:
+          type: integer
+          nullable: true
+    
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        assigned_to:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        userroles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRole'
+    
+    RoleCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        assigned_to:
+          type: string
+          nullable: true
+      required:
+        - name
+    
+    RoleUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        assigned_to:
+          type: string
+          nullable: true
+    
+    UserRole:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        role_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/UserBasic'
+        role:
+          $ref: '#/components/schemas/RoleBasic'
+    
+    UserRoleCreate:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        role_id:
+          type: integer
+      required:
+        - user_id
+        - role_id
+    
+    Setting:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        preferences:
+          type: object
+        user:
+          $ref: '#/components/schemas/UserBasic'
+    
+    SettingCreate:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        preferences:
+          type: object
+      required:
+        - user_id
+        - preferences
+    
+    SettingUpdate:
+      type: object
+      properties:
+        preferences:
+          type: object
+      required:
+        - preferences
+
+    UserBasic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+    
+    RoleBasic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
