@@ -1,16 +1,15 @@
-// handlers/setting_handler.go
 package handlers
 
 import (
 	"context"
 	"demo-prismao-apicodegen"
 	"demo-prismao-apicodegen/prisma/db"
+	"demo-prismao-apicodegen/ultis"
 	"encoding/json"
 	"errors"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"strings"
-
-	"github.com/labstack/echo/v4"
 )
 
 // SettingHandler xử lý các request cho Setting endpoints
@@ -52,18 +51,17 @@ func (h *SettingHandler) PostSettingsUserId(ctx echo.Context, userId int) error 
 	if err := ctx.Bind(&settingCreate); err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
-
-	prismCtx := context.Background()
-
-	// Chuyển đổi preferences sang JSON
-	preferencesJSON, err := json.Marshal(settingCreate.Preferences)
+	preferencesData := settingCreate.Preferences
+	mergedPreferences := utils.MergePreferences(utils.DefaultPreferences, preferencesData)
+	preferencesJSON, err := json.Marshal(mergedPreferences)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid preferences format"})
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to encode preferences"})
 	}
+	prismCtx := context.Background()
 
 	// Tạo setting mới
 	setting, err := h.Client.Setting.CreateOne(
-		db.Setting.Preferences.Set(preferencesJSON),
+		db.Setting.Preferences.Set(preferencesJSON), // Đặt preferences là JSON đã mã hóa
 		db.Setting.User.Link(
 			db.User.ID.Equals(userId),
 		),
@@ -86,15 +84,13 @@ func (h *SettingHandler) PutSettingsUserId(ctx echo.Context, userId int) error {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}
 
-	// Chuyển đổi preferences sang JSON
-	preferencesJSON, err := json.Marshal(settingUpdate.Preferences)
+	preferencesData := settingUpdate.Preferences
+	mergedPreferences := utils.MergePreferences(utils.DefaultPreferences, preferencesData)
+	preferencesJSON, err := json.Marshal(mergedPreferences)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid preferences format"})
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to encode preferences"})
 	}
-
 	prismCtx := context.Background()
-
-	// Cập nhật setting
 	setting, err := h.Client.Setting.FindUnique(
 		db.Setting.UserID.Equals(userId),
 	).Update(
